@@ -39,6 +39,7 @@ public class ParaCFG {
 				history.add(str);
 			}
 			else {
+				history.add(str);
 				return history.size() - index;
 			}
 		}
@@ -55,7 +56,9 @@ public class ParaCFG {
 	
 	/* TEST TEST TEST */
 	public static void test() {
-		String fpath = "/home/ishi/eclipse-workspace/CFG/star-3.txt";
+		//ile directory = new File("./");
+		String fpath = "star-3.txt";
+				//directory.getAbsolutePath() + "/star-3.txt"; 
 		CFGGraph gr = new CFGGraph(fpath);
 		ParaCFG game = new ParaCFG(gr);
 		System.out.println("ADJACENCY MATRIX: ");
@@ -70,7 +73,7 @@ public class ParaCFG {
 	}
 	
 	public static void testRings() {
-		String fpath = "/home/ishi/eclipse-workspace/CFG/rings-4_3.txt";
+		String fpath = "./rings-4_3.txt";
 		APointAndRings gr = new APointAndRings(fpath);
 		ParaCFG game = new ParaCFG(gr);
 		System.out.println("ADJACENCY MATRIX: ");
@@ -81,8 +84,8 @@ public class ParaCFG {
 		gr.printConfigByRings();
 		System.out.println("GAME PERIOD = " + game.computePeriod());
 		game.printHistory();
-		System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
-		System.out.println(gr.configString());
+		//System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
+		//System.out.println(gr.configString());
 	}
 
 	public static void main(String[] args) {
