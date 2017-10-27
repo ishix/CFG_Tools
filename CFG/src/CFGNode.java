@@ -51,16 +51,22 @@ public class CFGNode implements Comparable<CFGNode> {
 	
 	/** firing */
 	public int isActive() {
-		return ( tokens >= degree ) ? tokens / degree : 0;
+		return ( tokens >= degree ) ? (tokens / degree) : 0;
 	}
 	
 	/* Gives one chip to each neighbour */
 	public void fire() {
-		int k = isActive();
-		for ( CFGNode v : neighbours ) {
-			v.addTokens(k);
+		//int k = isActive();
+		if ( isActive() > 0 ) {
+			//System.out.println(id + " is active: " + tokens + " >= " + degree);
+			for ( CFGNode v : neighbours ) {
+				v.addTokens(1);
+			}
+			tokens -= degree;
 		}
-		tokens -= k * degree;
+		else {
+			//System.out.println(id + " is not active: " + tokens + " < " + degree);
+		}
 	}
 	
 	/** test if there is an arc between two vertices */

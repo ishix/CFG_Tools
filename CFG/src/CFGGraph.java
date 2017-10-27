@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 
 public class CFGGraph {
 	protected CFGNode[] nodes;
@@ -23,6 +24,7 @@ public class CFGGraph {
 		try {
 			BufferedReader buf = new BufferedReader( new FileReader( fileName ));
 			String line;
+			String[] words;
 			
 			// first line contains the graph's size
 			line = buf.readLine();
@@ -34,12 +36,20 @@ public class CFGGraph {
 				v[i] = new CFGNode(i);
 			}
 			
+			// next row is the initial config
+			line = buf.readLine();
+			words = line.split(" ");
+			int[] config = new int[words.length];
+			for ( int i = 0; i < words.length; i++ ) {
+				config[i] = (new Integer(words[i])).intValue();
+			}
+			
 			// add arcs
 			int rowCount = 0, colCount = 0;
 			while ( (line = buf.readLine()) != null ) {
 				rowCount++;
 								 
-				String[] words = line.split(" ");
+				words = line.split(" ");
 				colCount = words.length;
 								
 				// safety check
@@ -69,6 +79,7 @@ public class CFGGraph {
 				for ( int i = 0; i < v.length; i++ ) {
 					activeNodes[i] = v[i].isActive();
 				}
+				setConfig(config);
 			}
 			buf.close();
 		}
@@ -179,7 +190,8 @@ public class CFGGraph {
 	/* fire all nodes that can fire */
 	public void fireAll() {
 		for ( int i = 0; i < nodes.length; i++ ) {
-			nodes[i].fire();
+			if ( activeNodes[i] > 0 )
+				nodes[i].fire();
 		}
 		updateActive();
 	}
@@ -188,17 +200,21 @@ public class CFGGraph {
 	
 	// TESTING TIME !
 	public static void main(String[] args) {
-		String fpath = "/home/ishi/eclipse-workspace/CFG/star-3.txt";
+		String fpath = "./star-3.txt";
 		CFGGraph gr = new CFGGraph(fpath);
 		//System.out.println(gr.nodes == null);
 		System.out.println("ADJACENCY MATRIX: ");
 		gr.printAdjMat();
 		System.out.println("INITIAL CONFIG: ");
 		System.out.println(gr.configString());
+		System.out.println("ACTIVE NODES: ");
+		System.out.println(Arrays.toString(gr.activeNodes));
 		int[] aconfig = {5, 0, 0, 0};
 		gr.setConfig(aconfig);
 		System.out.println("New CONFIG: ");
 		System.out.println(gr.configString());
+		System.out.println("ACTIVE NODES: ");
+		System.out.println(Arrays.toString(gr.activeNodes));
 		System.out.println("NOW FIRE ALL FIRABLE NODES:");
 		gr.fireAll();
 		System.out.println(gr.configString());

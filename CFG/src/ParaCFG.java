@@ -4,19 +4,18 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 public class ParaCFG {
 	protected CFGGraph graph;
 	protected ArrayList< String > history; //record of the game
-	protected ArrayList< String > shotvectors; //record of firing nodes
+	protected ArrayList< String > firingnodes; //record of firing nodes
 	
 	/* Constructor */
 	ParaCFG( CFGGraph g ) {
 		graph = g;
 		history = new ArrayList< String >();
-		shotvectors = new ArrayList< String >();
+		firingnodes = new ArrayList< String >();
 		// put the initial config into the history and increment the round counter
 		history.add(graph.configString());
 	}
@@ -41,7 +40,11 @@ public class ParaCFG {
 	public int computePeriod() {
 		String str;
 		while ( true ) {
-			shotvectors.add(Arrays.toString(graph.activeNodes));
+			String sv = "";
+			for ( int i = 0; i < graph.activeNodes.length; i++ ) {
+				sv += (graph.activeNodes[i] != 0) ? "1 " : "0 ";
+			}
+			firingnodes.add(sv);
 			graph.fireAll();
 			str = graph.configString();
 			int index = history.indexOf(str);
@@ -49,8 +52,9 @@ public class ParaCFG {
 				history.add(str);
 			}
 			else {
+				int p = history.size() - index;
 				history.add(str);
-				return history.size() - index;
+				return p;
 			}
 		}
 		
@@ -64,10 +68,10 @@ public class ParaCFG {
 		}
 	}
 	
-	public void printShotvectors() {
-		System.out.println("THE FRING VERTICES SO FAR:");
-		for ( int i = 0; i < shotvectors.size(); i++) {
-			System.out.println(shotvectors.get(i));
+	public void printfiringnodes() {
+		System.out.println("THE FIRING VERTICES SO FAR:");
+		for ( int i = 0; i < firingnodes.size(); i++) {
+			System.out.println(firingnodes.get(i));
 		}
 	}
 	
@@ -101,14 +105,14 @@ public class ParaCFG {
 		gr.printConfigByRings();
 		System.out.println("GAME PERIOD = " + game.computePeriod());
 		game.printHistory();
-		game.printShotvectors();
-		//System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
-		//System.out.println(gr.configString());
+		game.printfiringnodes();
+		System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
+		System.out.println(gr.configString());
 	}
 	
 	public static void printUsage() {
 		try {
-			BufferedReader buf = new BufferedReader( new FileReader("./usage.txt"));
+			BufferedReader buf = new BufferedReader( new FileReader("../Usage.txt"));
 			String line;
 			while ( (line = buf.readLine()) != null ) {
 				System.out.println(line);
@@ -121,14 +125,16 @@ public class ParaCFG {
 	}
 
 	public static void run(String[] args) {
+		/** DEBUG 
 		System.out.println("args.length = " + args.length);
 		for ( int i = 0; i < args.length; i++ ) {
 			System.out.print(args[i] + " ");
 		}
 		System.out.println();
+		END DEBUG */
 		
 		if ( args.length < 1 || args.length > 3 ) {
-			//printUsage();
+			printUsage();
 			return;
 		}
 		
@@ -141,7 +147,7 @@ public class ParaCFG {
 				outpath = inpath + "." + new SimpleDateFormat("yyyyMMddHHmm").format( new Date() );
 				break;
 			case 3:
-				if ( args[0] == "--rings" ) {
+				if ( args[0].equals("--rings") ) {
 					ringMode = true;
 				}
 				inpath = args[1];
@@ -149,7 +155,6 @@ public class ParaCFG {
 				break;
 			default:
 				if ( args[0].equals("--rings") ) {
-					System.out.println("RING MODE");
 					ringMode = true;
 					inpath = args[1];
 					outpath = inpath + "." + new SimpleDateFormat("yyyyMMddHHmm").format( new Date() );
@@ -166,6 +171,15 @@ public class ParaCFG {
 				}
 		}
 		try {
+			if ( ringMode ) {
+				System.out.println("MODE = rings");
+			}
+			else {
+				System.out.println("MODE = generic");
+			}
+			System.out.println("INPUT FILE = " + inpath);
+			//System.out.println("OUTPUT FILE = " + outpath);
+			
 			BufferedWriter outbuf = new BufferedWriter( new FileWriter(outpath) );
 			ParaCFG game;
 			if ( ringMode ) {
@@ -178,17 +192,17 @@ public class ParaCFG {
 			}
 			int period = game.computePeriod();
 			outbuf.write("GAME PERIOD:\n");
-			outbuf.write(period + '\n');
+			outbuf.write("" + period + "\n");
 			outbuf.write("GAME CONFIGS:\n");
 			for ( int i = 0; i < game.history.size(); i++ ) {
 				outbuf.write(game.history.get(i) + '\n');
 			}
-			outbuf.write("SHOT VECTORS:\n");
-			for ( int i = 0; i < game.shotvectors.size(); i++ ) {
-				outbuf.write(game.shotvectors.get(i) + '\n');
+			outbuf.write("FIRING NODES:\n");
+			for ( int i = 0; i < game.firingnodes.size(); i++ ) {
+				outbuf.write(game.firingnodes.get(i) + '\n');
 			}
 			outbuf.close();
-			System.out.println("Results written in file: " + outpath);
+			System.out.println("Results successfully written in file: " + outpath);
 		}
 		catch ( Exception e ) {
 			e.printStackTrace();
@@ -199,8 +213,6 @@ public class ParaCFG {
 		//test();
 		//testRings();
 		run(args);
-//		for ( int i = 0; i < args.length; i++ ) {
-//			System.out.print(args[i] + " ");
-//		}
+		//printUsage();
 	}
 }
