@@ -3,7 +3,7 @@ import java.io.FileReader;
 
 public class CFGGraph {
 	protected CFGNode[] nodes;
-	protected boolean[] activeNodes;
+	protected int[] activeNodes;
 	
 	/* Constructors */	
 	public CFGGraph() {
@@ -13,7 +13,7 @@ public class CFGGraph {
 	
 	public CFGGraph( CFGNode[] v ) {
 		nodes = v;
-		activeNodes = new boolean[v.length];
+		activeNodes = new int[v.length];
 		for ( int i = 0; i < v.length; i++ ) {
 			activeNodes[i] = v[i].isActive();
 		}
@@ -65,7 +65,7 @@ public class CFGGraph {
 			}
 			else {
 				nodes =  v;
-				activeNodes = new boolean[v.length];
+				activeNodes = new int[v.length];
 				for ( int i = 0; i < v.length; i++ ) {
 					activeNodes[i] = v[i].isActive();
 				}
@@ -179,9 +179,7 @@ public class CFGGraph {
 	/* fire all nodes that can fire */
 	public void fireAll() {
 		for ( int i = 0; i < nodes.length; i++ ) {
-			if ( activeNodes[i] ) {
-				nodes[i].fire();
-			}
+			nodes[i].fire();
 		}
 		updateActive();
 	}

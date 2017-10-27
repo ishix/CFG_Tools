@@ -40,7 +40,7 @@ public class APointAndRings extends CFGGraph{
 			ringLen = new int[nbRings];
 			
 			nodes = new CFGNode[nbNodes];
-			activeNodes = new boolean[nbNodes];
+			activeNodes = new int[nbNodes];
 			
 			// add individual nodes to the graph
 			nodes[0] = center;

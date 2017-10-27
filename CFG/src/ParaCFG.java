@@ -1,13 +1,22 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 public class ParaCFG {
 	protected CFGGraph graph;
 	protected ArrayList< String > history; //record of the game
+	protected ArrayList< String > shotvectors; //record of firing nodes
 	
 	/* Constructor */
 	ParaCFG( CFGGraph g ) {
 		graph = g;
 		history = new ArrayList< String >();
+		shotvectors = new ArrayList< String >();
 		// put the initial config into the history and increment the round counter
 		history.add(graph.configString());
 	}
@@ -32,6 +41,7 @@ public class ParaCFG {
 	public int computePeriod() {
 		String str;
 		while ( true ) {
+			shotvectors.add(Arrays.toString(graph.activeNodes));
 			graph.fireAll();
 			str = graph.configString();
 			int index = history.indexOf(str);
@@ -51,6 +61,13 @@ public class ParaCFG {
 		System.out.println("THE ENCOUNTERED CONFIGURATIONS SO FAR:");
 		for ( int i = 0; i < history.size(); i++) {
 			System.out.println(history.get(i));
+		}
+	}
+	
+	public void printShotvectors() {
+		System.out.println("THE FRING VERTICES SO FAR:");
+		for ( int i = 0; i < shotvectors.size(); i++) {
+			System.out.println(shotvectors.get(i));
 		}
 	}
 	
@@ -84,12 +101,106 @@ public class ParaCFG {
 		gr.printConfigByRings();
 		System.out.println("GAME PERIOD = " + game.computePeriod());
 		game.printHistory();
+		game.printShotvectors();
 		//System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
 		//System.out.println(gr.configString());
 	}
+	
+	public static void printUsage() {
+		try {
+			BufferedReader buf = new BufferedReader( new FileReader("./usage.txt"));
+			String line;
+			while ( (line = buf.readLine()) != null ) {
+				System.out.println(line);
+			}
+			buf.close();
+		}
+		catch ( Exception e ) {
+			e.printStackTrace();
+		}
+	}
 
+	public static void run(String[] args) {
+		System.out.println("args.length = " + args.length);
+		for ( int i = 0; i < args.length; i++ ) {
+			System.out.print(args[i] + " ");
+		}
+		System.out.println();
+		
+		if ( args.length < 1 || args.length > 3 ) {
+			//printUsage();
+			return;
+		}
+		
+		String inpath, outpath;
+		boolean ringMode = false;
+		
+		switch ( args.length ) {
+			case 1:
+				inpath = args[0];
+				outpath = inpath + "." + new SimpleDateFormat("yyyyMMddHHmm").format( new Date() );
+				break;
+			case 3:
+				if ( args[0] == "--rings" ) {
+					ringMode = true;
+				}
+				inpath = args[1];
+				outpath = args[2];
+				break;
+			default:
+				if ( args[0].equals("--rings") ) {
+					System.out.println("RING MODE");
+					ringMode = true;
+					inpath = args[1];
+					outpath = inpath + "." + new SimpleDateFormat("yyyyMMddHHmm").format( new Date() );
+				}
+				else if ( args[0].equals("--generic") ) {
+					System.out.println("GENERIC MODE WITH OUTPUT UNSPECIFIED");
+					inpath = args[1];
+					outpath = inpath + "." + new SimpleDateFormat("yyyyMMddHHmm").format( new Date() );
+				}
+				else {
+					System.out.println("GENERIC MODE WITH OUTPUT SPECIFIED");
+					inpath = args[0];
+					outpath = args[1];
+				}
+		}
+		try {
+			BufferedWriter outbuf = new BufferedWriter( new FileWriter(outpath) );
+			ParaCFG game;
+			if ( ringMode ) {
+				APointAndRings gr = new APointAndRings(inpath);
+				game = new ParaCFG(gr);
+			}
+			else {
+				CFGGraph gr = new CFGGraph(inpath);
+				game = new ParaCFG(gr);
+			}
+			int period = game.computePeriod();
+			outbuf.write("GAME PERIOD:\n");
+			outbuf.write(period + '\n');
+			outbuf.write("GAME CONFIGS:\n");
+			for ( int i = 0; i < game.history.size(); i++ ) {
+				outbuf.write(game.history.get(i) + '\n');
+			}
+			outbuf.write("SHOT VECTORS:\n");
+			for ( int i = 0; i < game.shotvectors.size(); i++ ) {
+				outbuf.write(game.shotvectors.get(i) + '\n');
+			}
+			outbuf.close();
+			System.out.println("Results written in file: " + outpath);
+		}
+		catch ( Exception e ) {
+			e.printStackTrace();
+		}	
+	}
+	
 	public static void main(String[] args) {
 		//test();
-		testRings();
+		//testRings();
+		run(args);
+//		for ( int i = 0; i < args.length; i++ ) {
+//			System.out.print(args[i] + " ");
+//		}
 	}
 }

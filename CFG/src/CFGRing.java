@@ -18,7 +18,7 @@ public class CFGRing extends CFGGraph{
 		v[n - 1].addNeighbour(v[0]);
 		
 		nodes = v;
-		activeNodes = new boolean[v.length];
+		activeNodes = new int[v.length];
 		for ( int i = 0; i < v.length; i++ ) {
 			activeNodes[i] = v[i].isActive();
 		}
