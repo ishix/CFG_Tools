@@ -1,3 +1,7 @@
+REQUIREMENT:
+    In order to generate .pdf versions of the successor firing graph for flower cactus, you need the "dot" command from the graphviz package: sudo apt-get install graphviz. In any case a dotsource.dot version is produced.
+    You may modify the dotForX with X your operating system in order to match the path to the dot command.
+
 COMMAND: 
     In the folder containing ParaCFG.class, execute:
     $ java ParaCFG [OPTION] INPUTFILE [OUTPUTFILE]

@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class CFGGraph {
 	protected CFGNode[] nodes;
@@ -222,4 +223,10 @@ public class CFGGraph {
 		gr.fireAll();
 		System.out.println(gr.configString());
 	}
+
+        /* construct the successor firing digraph fot format (only for rings...) */
+        public String get_sfddot(int period, ArrayList< int[] > firingnodeshistory){
+                return "";
+        }
+        
 }

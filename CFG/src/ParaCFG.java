@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,12 +11,16 @@ public class ParaCFG {
 	protected CFGGraph graph;
 	protected ArrayList< String > history; //record of the game
 	protected ArrayList< String > firingnodes; //record of firing nodes
+        //record  the firing nodes history in order to compute the successor firing digraph
+        protected ArrayList< int[] > firingnodeshistory; 
+        protected String sfddot; //record the dot format successor firing digraph
 	
 	/* Constructor */
 	ParaCFG( CFGGraph g ) {
 		graph = g;
 		history = new ArrayList< String >();
 		firingnodes = new ArrayList< String >();
+                firingnodeshistory = new ArrayList< int[] >();
 		// put the initial config into the history and increment the round counter
 		history.add(graph.configString());
 	}
@@ -44,6 +49,8 @@ public class ParaCFG {
 			for ( int i = 0; i < graph.activeNodes.length; i++ ) {
 				sv += (graph.activeNodes[i] != 0) ? "1 " : "0 ";
 			}
+                        //save activeNodes array
+                        firingnodeshistory.add(graph.activeNodes.clone());
 			firingnodes.add(sv);
 			graph.fireAll();
 			str = graph.configString();
@@ -59,6 +66,11 @@ public class ParaCFG {
 		}
 		
 	}
+
+        /* construct the successor firing digraph dot format */
+        public void set_sfddot(int period) {
+                sfddot = graph.get_sfddot(period,firingnodeshistory);
+        }
 	
 	/* Verbose */
 	public void printHistory() {
@@ -74,6 +86,20 @@ public class ParaCFG {
 			System.out.println(firingnodes.get(i));
 		}
 	}
+
+        public static void createDotGraph(String dotFormat,String fileName){
+                GraphViz gv=new GraphViz();
+                gv.addln(gv.start_graph());
+                gv.add(dotFormat);
+                gv.addln(gv.end_graph());
+                // String type = "gif";
+                String type = "pdf";
+                // gv.increaseDpi();
+                gv.decreaseDpi();
+                gv.decreaseDpi();
+                File out = new File(fileName+"."+ type); 
+                gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
+        }
 	
 	/* TEST TEST TEST */
 	public static void test() {
@@ -203,6 +229,13 @@ public class ParaCFG {
 			}
 			outbuf.close();
 			System.out.println("Results successfully written in file: " + outpath);
+			if ( ringMode ) {
+                                //construct successor firing digraph dot format
+                                game.set_sfddot(period);
+                                //generate pdf
+                                createDotGraph(game.sfddot,outpath);
+                                System.out.println("Successor firing graph written in file: " + outpath + ".pdf");
+                        }
 		}
 		catch ( Exception e ) {
 			e.printStackTrace();

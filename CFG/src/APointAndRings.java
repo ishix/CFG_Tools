@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.ArrayList;
 
 public class APointAndRings extends CFGGraph{
@@ -112,4 +113,68 @@ public class APointAndRings extends CFGGraph{
 		System.out.println("INITIAL CONFIG: ");
 		System.out.println(g1.configString());
 	}
+
+        /* construct the successor firing digraph dot format */
+        
+        public String get_sfddot(int period, ArrayList< int[] > firingnodeshistory){
+                String sfddot="v; ";
+                int endfnh = firingnodeshistory.size()-1;
+                for ( int i = 0; i < getPortId().length; i++ ){
+                        int arc=0;
+                        //arcs in rings
+                        for ( int j =0; j < ringLen[i]; j++ ){
+                                sfddot+="v_"+i+"_"+j+"; ";
+                                //check arc v_i_j+1 -> v_i_j
+                                arc=1;
+                                for ( int k=0; k < period; k++ ){
+                                        if (firingnodeshistory.get(endfnh-k)[portId[i]+j]==1 && firingnodeshistory.get((endfnh-k-1 >= 0) ? endfnh-k-1 : endfnh)[portId[i]+((j+1)%(ringLen[i]))]==0){
+                                                arc=0;
+                                                break;
+                                        }
+                                }
+                                if (arc==1){
+                                        //add arc v_i_j+1 -> v_i_j
+                                        sfddot+="v_"+i+"_"+((j+1)%ringLen[i])+" -> v_"+i+"_"+j+"; ";
+                                }
+                                //check arc v_i_j -> v_i_j+1
+                                arc=1;
+                                for ( int k=0; k < period; k++ ){
+                                        if (firingnodeshistory.get(endfnh-k)[portId[i]+((j+1)%(ringLen[i]))]==1 && firingnodeshistory.get((endfnh-k-1 >= 0) ? endfnh-k-1 : endfnh)[portId[i]+j]==0){
+                                                arc=0;
+                                                break;
+                                        }
+                                }
+                                if (arc==1){
+                                        //add arc v_i_j -> v_i_j+1
+                                        sfddot+="v_"+i+"_"+j+" -> v_"+i+"_"+((j+1)%ringLen[i])+"; ";
+                                }
+                        }
+                        //check arc v -> v_i_0
+                        arc=1;
+                        for ( int k=0; k < period; k++ ){
+                                if (firingnodeshistory.get(endfnh-k)[portId[i]]==1 && firingnodeshistory.get((endfnh-k-1 >= 0) ? endfnh-k-1 : endfnh)[0]==0){
+                                        arc=0;
+                                        break;
+                                }
+                        }
+                        if (arc==1){
+                                //add arc v -> v_i_0
+                                sfddot+="v -> v_"+i+"_0; ";
+                        }
+                        //check arc v_i_0 -> v
+                        arc=1;
+                        for ( int k=0; k < period; k++ ){
+                                if (firingnodeshistory.get(endfnh-k)[0]==1 && firingnodeshistory.get((endfnh-k-1 >= 0) ? endfnh-k-1 : endfnh)[portId[i]]==0){
+                                        arc=0;
+                                        break;
+                                }
+                        }
+                        if (arc==1){
+                                //add arc v_i_0 -> v
+                                sfddot+="v_"+i+"_0 -> v; ";
+                        }
+                        
+                }
+                return sfddot;
+        }
 }
