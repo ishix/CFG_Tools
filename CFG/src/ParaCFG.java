@@ -125,15 +125,15 @@ public class ParaCFG {
 		ParaCFG game = new ParaCFG(gr);
 		System.out.println("ADJACENCY MATRIX: ");
 		gr.printAdjMat();
-		System.out.println("PORTS ARE:");
+		//System.out.println("PORTS ARE:");
 		
 		System.out.println("CONFIGS BY RINGS: ");
 		gr.printConfigByRings();
 		System.out.println("GAME PERIOD = " + game.computePeriod());
 		game.printHistory();
 		game.printfiringnodes();
-		System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
-		System.out.println(gr.configString());
+		//System.out.println("JUST TO BE SURE, THIS IS THE NEXT CONFIG: ");
+		//System.out.println(gr.configString());
 	}
 	
 	public static void printUsage() {
@@ -244,8 +244,8 @@ public class ParaCFG {
 	
 	public static void main(String[] args) {
 		//test();
-		//testRings();
-		run(args);
+		testRings();
+		//run(args);
 		//printUsage();
 	}
 }
