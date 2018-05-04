@@ -120,7 +120,7 @@ public class ParaCFG {
 	}
 	
 	public static void testRings() {
-		String fpath = "./rings-4_3.txt";
+		String fpath = "./rings-4_6.txt";
 		APointAndRings gr = new APointAndRings(fpath);
 		ParaCFG game = new ParaCFG(gr);
 		System.out.println("ADJACENCY MATRIX: ");
